@@ -1,157 +1,161 @@
-import { FamilyMember } from '@/types/FamilyMember';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Phone, Mail, MapPin, Calendar, Edit, Trash2, UserPlus } from 'lucide-react';
+import { useFamilyTree } from '@/contexts/FamilyTreeContext';
+import { FamilyMember, getRelationDisplayLabel } from '@/types/family';
+import { GlassCard } from './GlassCard';
+import { cn } from '@/lib/utils';
+import { User, Plus } from 'lucide-react';
 
 interface FamilyMemberCardProps {
   member: FamilyMember;
-  onEdit: (member: FamilyMember) => void;
-  onDelete: (id: string) => void;
-  onAddChild: (parentId: string) => void;
-  isCompact?: boolean;
+  isRoot?: boolean;
+  isSelected?: boolean;
+  onClick?: () => void;
+  onAddRelative?: () => void;
+  compact?: boolean;
 }
 
-export const FamilyMemberCard = ({
+export function FamilyMemberCard({
   member,
-  onEdit,
-  onDelete,
-  onAddChild,
-  isCompact = false,
-}: FamilyMemberCardProps) => {
-  const initials = `${member.firstName[0] || ''}${member.lastName[0] || ''}`.toUpperCase();
-  
-  const formatDate = (date?: string) => {
-    if (!date) return null;
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  isRoot = false,
+  isSelected = false,
+  onClick,
+  onAddRelative,
+  compact = false,
+}: FamilyMemberCardProps) {
+  const getYearDisplay = () => {
+    if (!member.birthYear && !member.deathYear) return null;
+    if (member.birthYear && member.deathYear) {
+      return `${member.birthYear} — ${member.deathYear}`;
+    }
+    if (member.birthYear) {
+      return `b. ${member.birthYear}`;
+    }
+    return null;
   };
 
-  const lifespan = member.birthDate 
-    ? `${formatDate(member.birthDate)}${member.deathDate ? ` — ${formatDate(member.deathDate)}` : ''}`
-    : null;
+  const yearDisplay = getYearDisplay();
 
-  if (isCompact) {
+  const getInitials = () => {
+    return member.name
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+
+  if (compact) {
     return (
-      <Card className="tree-node border shadow-md hover:shadow-lg transition-all w-48 relative overflow-hidden">
-        {/* Top gold accent line */}
-        <div className="absolute top-0 left-0 right-0 h-0.5 gold-gradient" />
-        <CardContent className="p-3 text-center">
-          <Avatar className="w-14 h-14 mx-auto mb-2 border-2 border-accent/20 shadow-sm">
-            <AvatarImage src={member.photo} alt={`${member.firstName} ${member.lastName}`} />
-            <AvatarFallback className="bg-accent/5 text-accent font-display text-lg font-medium">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <h3 className="font-display font-medium text-sm text-foreground tracking-wide">
-            {member.firstName} {member.lastName}
-          </h3>
-          {member.maidenName && (
-            <p className="text-xs text-muted-foreground italic font-body">née {member.maidenName}</p>
-          )}
-          {lifespan && (
-            <p className="text-xs text-muted-foreground mt-1 font-body">{lifespan}</p>
-          )}
-        </CardContent>
-      </Card>
+      <GlassCard
+        variant={isSelected ? 'strong' : 'default'}
+        hover
+        onClick={onClick}
+        className={cn(
+          'p-3 min-w-[120px]',
+          isRoot && 'ring-1 ring-accent/40',
+          isSelected && 'ring-2 ring-foreground/20'
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            'w-8 h-8 rounded-full flex items-center justify-center',
+            'bg-muted/30 text-muted-foreground'
+          )}>
+            {member.photo ? (
+              <img
+                src={member.photo}
+                alt={member.name}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-[10px] font-medium">{getInitials()}</span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-editorial text-sm truncate text-foreground/90">{member.name}</p>
+            {isRoot && (
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                You
+              </span>
+            )}
+          </div>
+        </div>
+      </GlassCard>
     );
   }
 
   return (
-    <Card className="tree-node border shadow-lg hover:shadow-xl transition-all w-[280px] relative overflow-hidden group">
-      {/* Top gold accent line */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 gold-gradient" />
-      
-      <CardContent className="p-5">
-        <div className="flex items-start gap-4">
-          <div className="relative">
-            <Avatar className="w-[72px] h-[72px] border-2 border-accent/15 shadow-md">
-              <AvatarImage src={member.photo} alt={`${member.firstName} ${member.lastName}`} />
-              <AvatarFallback className="bg-accent/5 text-accent font-display text-xl font-medium">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            {/* Decorative corner */}
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 border-b border-r border-accent/20" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-display font-medium text-lg text-foreground truncate tracking-wide leading-tight">
-              {member.firstName} {member.lastName}
-            </h3>
-            {member.maidenName && (
-              <p className="text-sm text-muted-foreground italic font-body">née {member.maidenName}</p>
-            )}
-            {lifespan && (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1.5 font-body">
-                <Calendar className="w-3 h-3 text-accent/60" />
-                <span>{lifespan}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Ornamental divider */}
-        <div className="flex items-center gap-2 my-3">
-          <div className="flex-1 h-px ornament-line" />
-          <div className="w-1 h-1 rotate-45 bg-accent/30" />
-          <div className="flex-1 h-px ornament-line" />
-        </div>
-
-        <div className="space-y-1.5">
-          {member.phone && (
-            <div className="flex items-center gap-2.5 text-sm text-muted-foreground font-body">
-              <Phone className="w-3.5 h-3.5 text-accent/50" />
-              <span className="truncate">{member.phone}</span>
-            </div>
+    <GlassCard
+      variant={isSelected ? 'strong' : 'default'}
+      hover
+      onClick={onClick}
+      className={cn(
+        'p-5 min-w-[180px] relative group',
+        isRoot && 'ring-1 ring-accent/30 glow-blush',
+        isSelected && 'ring-2 ring-foreground/15'
+      )}
+    >
+      {onAddRelative && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddRelative();
+          }}
+          className={cn(
+            'absolute -top-2 -right-2 w-7 h-7 rounded-full',
+            'glass-strong shadow-frost',
+            'flex items-center justify-center',
+            'opacity-0 group-hover:opacity-100 transition-elegant',
+            'hover:scale-110 hover:shadow-frost-lg',
+            'border border-border/30'
           )}
-          {member.email && (
-            <div className="flex items-center gap-2.5 text-sm text-muted-foreground font-body">
-              <Mail className="w-3.5 h-3.5 text-accent/50" />
-              <span className="truncate">{member.email}</span>
-            </div>
-          )}
-          {member.address && (
-            <div className="flex items-center gap-2.5 text-sm text-muted-foreground font-body">
-              <MapPin className="w-3.5 h-3.5 text-accent/50" />
-              <span className="truncate">{member.address}</span>
-            </div>
+        >
+          <Plus className="w-3.5 h-3.5 text-foreground/70" />
+        </button>
+      )}
+
+      <div className="flex flex-col items-center text-center gap-3">
+        {/* Avatar */}
+        <div className={cn(
+          'w-16 h-16 rounded-full flex items-center justify-center',
+          'bg-gradient-to-br from-muted/20 to-muted/40',
+          'ring-1 ring-border/30',
+          isRoot && 'ring-accent/40'
+        )}>
+          {member.photo ? (
+            <img
+              src={member.photo}
+              alt={member.name}
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            <span className="text-lg text-muted-foreground/70 text-editorial">
+              {getInitials()}
+            </span>
           )}
         </div>
 
-        {/* Actions — appear on hover */}
-        <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/40 opacity-60 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onAddChild(member.id)}
-            className="text-accent hover:text-accent hover:bg-accent/10 font-display tracking-wide text-xs"
-          >
-            <UserPlus className="w-3.5 h-3.5 mr-1" />
-            Add Child
-          </Button>
-          <div className="flex gap-0.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(member)}
-              className="h-7 w-7 hover:bg-accent/10"
-            >
-              <Edit className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(member.id)}
-              className="h-7 w-7 hover:bg-destructive/10 text-destructive/60 hover:text-destructive"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </Button>
-          </div>
+        {/* Name */}
+        <div>
+          <h3 className="text-editorial text-lg leading-tight text-foreground/90">
+            {member.name}
+          </h3>
+          {yearDisplay && (
+            <p className="text-editorial-italic text-xs text-muted-foreground mt-0.5">
+              {yearDisplay}
+            </p>
+          )}
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Relation badge */}
+        <span className={cn(
+          'text-[9px] uppercase tracking-[0.15em] text-muted-foreground/80',
+          'px-2.5 py-1 rounded-full',
+          'bg-gradient-to-r from-muted/20 to-muted/30',
+          isRoot && 'bg-gradient-to-r from-accent/20 to-accent/30 text-accent-foreground/70'
+        )}>
+          {getRelationDisplayLabel(member)}
+        </span>
+      </div>
+    </GlassCard>
   );
-};
+}
