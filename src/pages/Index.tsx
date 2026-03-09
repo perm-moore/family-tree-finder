@@ -30,6 +30,24 @@ const Index = () => {
   const [parentIdForNewMember, setParentIdForNewMember] = useState<string | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<string | null>(null);
 
+  const handleCloseMemberDialog = () => {
+    setMemberDialogOpen(false);
+    setEditingMember(null);
+    setParentIdForNewMember(null);
+  };
+
+  const handleCloseExportDialog = () => {
+    setExportDialogOpen(false);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setMemberToDelete(null);
+  };
+
+  const handleCloseClearDialog = () => {
+    setClearDialogOpen(false);
+  };
   const handleAddMember = () => {
     setEditingMember(null);
     setParentIdForNewMember(null);
@@ -37,7 +55,6 @@ const Index = () => {
   };
 
   const handleAddChild = (parentId: string) => {
-    const parent = tree.members.find(m => m.id === parentId);
     setEditingMember(null);
     setParentIdForNewMember(parentId);
     setMemberDialogOpen(true);
@@ -100,7 +117,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen parchment-bg">
       <Header
         treeName={tree.name}
         memberCount={tree.members.length}
@@ -110,7 +127,7 @@ const Index = () => {
         onRename={updateTreeName}
       />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 py-10">
         <FamilyTreeView
           members={tree.members}
           onEdit={handleEditMember}
@@ -119,7 +136,15 @@ const Index = () => {
         />
       </main>
 
-      {/* Member Form Dialog */}
+      {/* Subtle footer ornament */}
+      <footer className="pb-8 flex justify-center">
+        <div className="flex items-center gap-3 opacity-20">
+          <div className="h-px w-12 ornament-line" />
+          <div className="w-1.5 h-1.5 rotate-45 border border-accent/40" />
+          <div className="h-px w-12 ornament-line" />
+        </div>
+      </footer>
+
       <MemberFormDialog
         open={memberDialogOpen}
         onOpenChange={setMemberDialogOpen}
@@ -133,7 +158,6 @@ const Index = () => {
         onSave={handleSaveMember}
       />
 
-      {/* Export Dialog */}
       <ExportDialog
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
@@ -141,36 +165,34 @@ const Index = () => {
         members={tree.members}
       />
 
-      {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-display">Remove Family Member?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-display text-xl">Remove Family Member?</AlertDialogTitle>
+            <AlertDialogDescription className="font-body">
               Are you sure you want to remove this family member? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground">
+            <AlertDialogCancel className="font-display">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground font-display">
               Remove
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Clear Tree Confirmation */}
       <AlertDialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-display">Clear Entire Family Tree?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-display text-xl">Clear Entire Family Tree?</AlertDialogTitle>
+            <AlertDialogDescription className="font-body">
               This will remove all family members from your tree. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearTree} className="bg-destructive text-destructive-foreground">
+            <AlertDialogCancel className="font-display">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearTree} className="bg-destructive text-destructive-foreground font-display">
               Clear Tree
             </AlertDialogAction>
           </AlertDialogFooter>

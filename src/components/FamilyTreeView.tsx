@@ -22,7 +22,6 @@ export const FamilyTreeView = ({
   onAddChild,
   printMode = false,
 }: FamilyTreeViewProps) => {
-  // Build tree structure
   const tree = useMemo(() => {
     const memberMap = new Map<string, FamilyMember>();
     const childrenMap = new Map<string, FamilyMember[]>();
@@ -44,7 +43,6 @@ export const FamilyTreeView = ({
       };
     };
 
-    // Find root members (no parent)
     const roots = members.filter(m => !m.parentId);
     return roots.map(buildNode);
   }, [members]);
@@ -54,11 +52,9 @@ export const FamilyTreeView = ({
 
     return (
       <div key={node.member.id} className="flex flex-col items-center">
-        {/* Member Card */}
         <div className="relative">
-          {/* Vertical line from parent */}
           {depth > 0 && (
-            <div className="absolute left-1/2 -top-6 w-0.5 h-6 tree-line -translate-x-1/2" />
+            <div className="absolute left-1/2 -top-8 w-px h-8 -translate-x-1/2 ornament-line" style={{ width: '1px', background: `linear-gradient(180deg, hsl(var(--gold-accent) / 0.2), hsl(var(--gold-accent) / 0.6))` }} />
           )}
           
           <FamilyMemberCard
@@ -70,28 +66,27 @@ export const FamilyTreeView = ({
           />
         </div>
 
-        {/* Children */}
         {hasChildren && (
-          <div className="flex flex-col items-center mt-6">
-            {/* Vertical line to children */}
-            <div className="w-0.5 h-6 tree-line" />
+          <div className="flex flex-col items-center mt-8">
+            <div className="w-px h-8" style={{ background: `linear-gradient(180deg, hsl(var(--gold-accent) / 0.6), hsl(var(--gold-accent) / 0.3))` }} />
             
-            {/* Horizontal connector line */}
+            {/* Diamond ornament at junction */}
+            <div className="w-2.5 h-2.5 rotate-45 border border-accent/50 bg-accent/10 -my-1 z-10" />
+            
             {node.children.length > 1 && (
               <div 
-                className="h-0.5 tree-line" 
+                className="h-px mt-1"
                 style={{ 
-                  width: `calc(${(node.children.length - 1) * 220}px)` 
+                  width: `calc(${(node.children.length - 1) * 240}px)`,
+                  background: `linear-gradient(90deg, hsl(var(--gold-accent) / 0.2), hsl(var(--gold-accent) / 0.5), hsl(var(--gold-accent) / 0.2))`,
                 }} 
               />
             )}
 
-            {/* Children row */}
-            <div className="flex gap-6 mt-0">
-              {node.children.map((child, index) => (
+            <div className="flex gap-8 mt-0">
+              {node.children.map((child) => (
                 <div key={child.member.id} className="relative">
-                  {/* Vertical line to each child */}
-                  <div className="absolute left-1/2 -top-6 w-0.5 h-6 tree-line -translate-x-1/2" />
+                  <div className="absolute left-1/2 -top-8 w-px h-8 -translate-x-1/2" style={{ background: `linear-gradient(180deg, hsl(var(--gold-accent) / 0.3), hsl(var(--gold-accent) / 0.6))` }} />
                   {renderNode(child, depth + 1)}
                 </div>
               ))}
@@ -104,29 +99,40 @@ export const FamilyTreeView = ({
 
   if (members.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-          <svg
-            className="w-12 h-12 text-primary"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-            />
+      <div className="flex flex-col items-center justify-center py-28 text-center px-4">
+        {/* Ornamental crest */}
+        <div className="relative mb-8">
+          <svg viewBox="0 0 120 120" className="w-32 h-32 opacity-20" fill="none">
+            <circle cx="60" cy="60" r="55" stroke="hsl(var(--gold-accent))" strokeWidth="0.5" />
+            <circle cx="60" cy="60" r="45" stroke="hsl(var(--gold-accent))" strokeWidth="0.3" />
+            <path d="M60 15 L65 30 L80 30 L68 40 L72 55 L60 45 L48 55 L52 40 L40 30 L55 30 Z" 
+              stroke="hsl(var(--gold-accent))" strokeWidth="0.5" fill="hsl(var(--gold-accent))" opacity="0.1" />
+            <path d="M30 75 Q60 60 90 75" stroke="hsl(var(--gold-accent))" strokeWidth="0.5" fill="none" />
+            <path d="M25 85 Q60 65 95 85" stroke="hsl(var(--gold-accent))" strokeWidth="0.3" fill="none" />
+            <path d="M35 95 Q60 80 85 95" stroke="hsl(var(--gold-accent))" strokeWidth="0.3" fill="none" />
           </svg>
         </div>
-        <h3 className="font-display text-2xl font-semibold text-foreground mb-2">
-          Start Your Family Tree
+
+        {/* Ornament line */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="h-px w-16 ornament-line" />
+          <div className="w-1.5 h-1.5 rotate-45 bg-accent/40" />
+          <div className="h-px w-16 ornament-line" />
+        </div>
+
+        <h3 className="font-display text-3xl font-medium text-foreground mb-3 tracking-wide">
+          Begin Your Legacy
         </h3>
-        <p className="text-muted-foreground max-w-md">
-          Add your first family member to begin building your family tree. 
-          You can add parents, children, spouses, and more.
+        <p className="text-muted-foreground max-w-sm font-body leading-relaxed text-base">
+          Every great family story begins with a single name. Add your first ancestor to begin weaving your lineage.
         </p>
+
+        {/* Bottom ornament */}
+        <div className="flex items-center gap-4 mt-8">
+          <div className="h-px w-10 ornament-line" />
+          <div className="w-1 h-1 rotate-45 bg-accent/30" />
+          <div className="h-px w-10 ornament-line" />
+        </div>
       </div>
     );
   }
