@@ -3,7 +3,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Phone, Mail, MapPin, Calendar, Edit, Trash2, UserPlus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface FamilyMemberCardProps {
   member: FamilyMember;
@@ -32,27 +31,29 @@ export const FamilyMemberCard = ({
   };
 
   const lifespan = member.birthDate 
-    ? `${formatDate(member.birthDate)}${member.deathDate ? ` - ${formatDate(member.deathDate)}` : ''}`
+    ? `${formatDate(member.birthDate)}${member.deathDate ? ` — ${formatDate(member.deathDate)}` : ''}`
     : null;
 
   if (isCompact) {
     return (
-      <Card className="tree-node border-2 shadow-md hover:shadow-lg transition-shadow w-48">
+      <Card className="tree-node border shadow-md hover:shadow-lg transition-all w-48 relative overflow-hidden">
+        {/* Top gold accent line */}
+        <div className="absolute top-0 left-0 right-0 h-0.5 gold-gradient" />
         <CardContent className="p-3 text-center">
-          <Avatar className="w-16 h-16 mx-auto mb-2 border-2 border-primary/20">
+          <Avatar className="w-14 h-14 mx-auto mb-2 border-2 border-accent/20 shadow-sm">
             <AvatarImage src={member.photo} alt={`${member.firstName} ${member.lastName}`} />
-            <AvatarFallback className="bg-primary/10 text-primary font-display text-lg">
+            <AvatarFallback className="bg-accent/5 text-accent font-display text-lg font-medium">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <h3 className="font-display font-semibold text-sm text-foreground">
+          <h3 className="font-display font-medium text-sm text-foreground tracking-wide">
             {member.firstName} {member.lastName}
           </h3>
           {member.maidenName && (
-            <p className="text-xs text-muted-foreground italic">née {member.maidenName}</p>
+            <p className="text-xs text-muted-foreground italic font-body">née {member.maidenName}</p>
           )}
           {lifespan && (
-            <p className="text-xs text-muted-foreground mt-1">{lifespan}</p>
+            <p className="text-xs text-muted-foreground mt-1 font-body">{lifespan}</p>
           )}
         </CardContent>
       </Card>
@@ -60,78 +61,93 @@ export const FamilyMemberCard = ({
   }
 
   return (
-    <Card className="tree-node border-2 shadow-lg hover:shadow-xl transition-all w-72">
-      <CardContent className="p-4">
+    <Card className="tree-node border shadow-lg hover:shadow-xl transition-all w-[280px] relative overflow-hidden group">
+      {/* Top gold accent line */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 gold-gradient" />
+      
+      <CardContent className="p-5">
         <div className="flex items-start gap-4">
-          <Avatar className="w-20 h-20 border-2 border-primary/20">
-            <AvatarImage src={member.photo} alt={`${member.firstName} ${member.lastName}`} />
-            <AvatarFallback className="bg-primary/10 text-primary font-display text-xl">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="w-[72px] h-[72px] border-2 border-accent/15 shadow-md">
+              <AvatarImage src={member.photo} alt={`${member.firstName} ${member.lastName}`} />
+              <AvatarFallback className="bg-accent/5 text-accent font-display text-xl font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            {/* Decorative corner */}
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 border-b border-r border-accent/20" />
+          </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-display font-semibold text-lg text-foreground truncate">
+            <h3 className="font-display font-medium text-lg text-foreground truncate tracking-wide leading-tight">
               {member.firstName} {member.lastName}
             </h3>
             {member.maidenName && (
-              <p className="text-sm text-muted-foreground italic">née {member.maidenName}</p>
+              <p className="text-sm text-muted-foreground italic font-body">née {member.maidenName}</p>
             )}
             {lifespan && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                <Calendar className="w-3 h-3" />
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1.5 font-body">
+                <Calendar className="w-3 h-3 text-accent/60" />
                 <span>{lifespan}</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="mt-3 space-y-1.5">
+        {/* Ornamental divider */}
+        <div className="flex items-center gap-2 my-3">
+          <div className="flex-1 h-px ornament-line" />
+          <div className="w-1 h-1 rotate-45 bg-accent/30" />
+          <div className="flex-1 h-px ornament-line" />
+        </div>
+
+        <div className="space-y-1.5">
           {member.phone && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Phone className="w-3.5 h-3.5 text-primary" />
+            <div className="flex items-center gap-2.5 text-sm text-muted-foreground font-body">
+              <Phone className="w-3.5 h-3.5 text-accent/50" />
               <span className="truncate">{member.phone}</span>
             </div>
           )}
           {member.email && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Mail className="w-3.5 h-3.5 text-primary" />
+            <div className="flex items-center gap-2.5 text-sm text-muted-foreground font-body">
+              <Mail className="w-3.5 h-3.5 text-accent/50" />
               <span className="truncate">{member.email}</span>
             </div>
           )}
           {member.address && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="w-3.5 h-3.5 text-primary" />
+            <div className="flex items-center gap-2.5 text-sm text-muted-foreground font-body">
+              <MapPin className="w-3.5 h-3.5 text-accent/50" />
               <span className="truncate">{member.address}</span>
             </div>
           )}
         </div>
 
-        <div className="flex justify-between items-center mt-4 pt-3 border-t border-border">
+        {/* Actions — appear on hover */}
+        <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/40 opacity-60 group-hover:opacity-100 transition-opacity">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onAddChild(member.id)}
-            className="text-primary hover:text-primary hover:bg-primary/10"
+            className="text-accent hover:text-accent hover:bg-accent/10 font-display tracking-wide text-xs"
           >
-            <UserPlus className="w-4 h-4 mr-1" />
+            <UserPlus className="w-3.5 h-3.5 mr-1" />
             Add Child
           </Button>
-          <div className="flex gap-1">
+          <div className="flex gap-0.5">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onEdit(member)}
-              className="h-8 w-8 hover:bg-primary/10"
+              className="h-7 w-7 hover:bg-accent/10"
             >
-              <Edit className="w-4 h-4" />
+              <Edit className="w-3.5 h-3.5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onDelete(member.id)}
-              className="h-8 w-8 hover:bg-destructive/10 text-destructive"
+              className="h-7 w-7 hover:bg-destructive/10 text-destructive/60 hover:text-destructive"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
             </Button>
           </div>
         </div>
