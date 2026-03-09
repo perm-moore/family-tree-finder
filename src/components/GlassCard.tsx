@@ -17,17 +17,16 @@ export function GlassCard({
   onClick,
 }: GlassCardProps) {
   const variants = {
-    subtle: 'glass-subtle shadow-frost',
-    default: 'glass shadow-frost',
-    strong: 'glass-strong shadow-frost-lg',
+    subtle: 'glass-subtle shadow-frost rounded-xl',
+    default: 'glass shadow-frost rounded-xl',
+    strong: 'glass-strong shadow-frost-lg rounded-xl',
   };
 
   return (
     <div
       className={cn(
-        'rounded-lg',
         variants[variant],
-        hover && 'transition-elegant hover:shadow-frost-lg hover:scale-[1.02]',
+        hover && 'transition-luxury hover:shadow-heritage hover:scale-[1.015]',
         onClick && 'cursor-pointer',
         className
       )}
